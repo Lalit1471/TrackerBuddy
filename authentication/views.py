@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib import auth, messages
 from validate_email import validate_email
+from django.core.mail import EmailMessage
 
 
 # Create your views here.
@@ -35,5 +36,32 @@ class RegistrationView(View):
         return render(request, 'authentication/register.html')
 
     def post(self, request):
-        messages.error(request, 'Success Whatsapp')
+
+        username = request.POST['username']
+        email = request.POST['email']
+        password = request.POST['password']
+
+        context = {
+            'fieldValues': request.POST
+        }
+
+        if not User.objects.filter(username=username).exists():
+            if not User.objects.filter(email=email).exists():
+                if len(password) < 6:
+                    messages.error(request, 'Password too short')
+                    return render(request, 'authentication/register.html', context)
+                elif len(username) == 0:
+                    messages.error(request, 'Enter a valid username')
+                    return render(request, 'authentication/register.html', context)
+                elif len(email) == 0:
+                    messages.error(request, 'Enter a valid email')
+                    return render(request, 'authentication/register.html', context)
+                else:
+                    user = User.objects.create_user(username=username, email=email, password=password)
+                    user.save()
+                    messages.success(request, 'Registered Successfully', context)
+                    return render(request, 'authentication/register.html')
+        else:
+            messages.error(request, 'Username not available')
+            return render(request, 'authentication/register.html', context)
         return render(request, 'authentication/register.html')
