@@ -3,7 +3,7 @@ from django.views import View
 import json
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from django.contrib import auth
+from django.contrib import auth, messages
 from validate_email import validate_email
 
 
@@ -32,4 +32,8 @@ class UsernameValidationView(View):
 
 class RegistrationView(View):
     def get(self, request):
+        return render(request, 'authentication/register.html')
+
+    def post(self, request):
+        messages.error(request, 'Success Whatsapp')
         return render(request, 'authentication/register.html')
